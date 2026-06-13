@@ -1,0 +1,31 @@
+name: Ingest Taraz docs
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        run: npm install
+      - name: Run ingest
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_VECTOR_STORE_ID: ${{ secrets.OPENAI_VECTOR_STORE_ID }}
+        run: npm run ingest
+      - name: Show result (vector store id is here)
+        run: |
+          echo "----- data/taraz-files.json (top) -----"
+          head -8 data/taraz-files.json
+      - name: Commit updated metadata
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add data/taraz-files.json
+          git commit -m "Update taraz-files.json via ingest" || echo "no changes"
+          git push
