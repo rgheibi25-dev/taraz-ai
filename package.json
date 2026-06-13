@@ -1,0 +1,22 @@
+{
+  "name": "taraz-qa",
+  "version": "0.1.0",
+  "private": true,
+  "description": "پرسش از پرونده‌های تراز — controlled, citation-based Q&A over published Taraz dossiers.",
+  "type": "module",
+  "scripts": {
+    "ingest": "tsx scripts/ingest-taraz-docs.ts",
+    "sync": "tsx scripts/sync-published-taraz-content.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "openai": "^4.77.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}

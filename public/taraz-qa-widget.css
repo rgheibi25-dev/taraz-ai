@@ -1,0 +1,90 @@
+/* پرسش از پرونده‌های تراز — editorial, calm, RTL. Namespaced .tzqa-* */
+.tzqa {
+  --tzqa-paper: #faf7f2;
+  --tzqa-ink: #1c1a17;
+  --tzqa-muted: #6f6862;
+  --tzqa-line: #e4ded4;
+  --tzqa-accent: #6e1414; /* oxblood, restrained */
+  --tzqa-radius: 10px;
+  direction: rtl;
+  text-align: right;
+  font-family: Vazirmatn, "IRANSans", system-ui, sans-serif;
+  color: var(--tzqa-ink);
+  background: var(--tzqa-paper);
+  border: 1px solid var(--tzqa-line);
+  border-radius: var(--tzqa-radius);
+  padding: 22px;
+  margin: 28px 0;
+  line-height: 1.85;
+}
+.tzqa--compact, .tzqa--inline { padding: 16px 18px; margin: 20px 0; }
+
+.tzqa-title { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
+.tzqa--full .tzqa-title { font-size: 1.4rem; }
+.tzqa-sub { color: var(--tzqa-muted); font-size: 0.92rem; margin-top: 4px; }
+.tzqa-intro { color: var(--tzqa-muted); font-size: 0.9rem; margin-top: 8px; }
+
+.tzqa-form { display: flex; gap: 8px; margin-top: 14px; }
+.tzqa-input {
+  flex: 1; min-width: 0; font: inherit; color: var(--tzqa-ink);
+  background: #fff; border: 1px solid var(--tzqa-line);
+  border-radius: 8px; padding: 11px 13px; outline: none;
+}
+.tzqa-input:focus { border-color: var(--tzqa-accent); }
+.tzqa-input:disabled { opacity: 0.6; }
+.tzqa-btn {
+  font: inherit; font-weight: 600; white-space: nowrap; cursor: pointer;
+  color: #fff; background: var(--tzqa-ink); border: 0;
+  border-radius: 8px; padding: 11px 18px;
+}
+.tzqa-btn:hover { background: var(--tzqa-accent); }
+.tzqa-btn:disabled { opacity: 0.5; cursor: default; }
+
+.tzqa-privacy { color: var(--tzqa-muted); font-size: 0.78rem; margin-top: 8px; }
+
+.tzqa-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+.tzqa-chip {
+  font: inherit; font-size: 0.83rem; cursor: pointer; color: var(--tzqa-ink);
+  background: #fff; border: 1px solid var(--tzqa-line);
+  border-radius: 999px; padding: 6px 12px;
+}
+.tzqa-chip:hover { border-color: var(--tzqa-accent); color: var(--tzqa-accent); }
+
+.tzqa-result { margin-top: 16px; }
+.tzqa-loading { color: var(--tzqa-muted); font-size: 0.92rem; }
+.tzqa-empty {
+  color: var(--tzqa-ink); font-size: 0.95rem;
+  background: #fff; border: 1px solid var(--tzqa-line);
+  border-radius: 8px; padding: 14px;
+}
+
+.tzqa-card { background: #fff; border: 1px solid var(--tzqa-line); border-radius: 8px; padding: 18px; }
+.tzqa-sec { margin-bottom: 16px; }
+.tzqa-sec:last-child { margin-bottom: 0; }
+.tzqa-sec-h {
+  font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em;
+  color: var(--tzqa-muted); margin-bottom: 6px;
+}
+.tzqa-answer { margin: 0; font-size: 1rem; }
+.tzqa-points { margin: 0; padding-right: 1.1rem; }
+.tzqa-points li { margin-bottom: 4px; }
+
+.tzqa-sources { display: grid; gap: 8px; }
+.tzqa-source { border: 1px solid var(--tzqa-line); border-radius: 8px; padding: 10px 12px; }
+.tzqa-source-t { font-weight: 600; color: var(--tzqa-accent); text-decoration: none; }
+a.tzqa-source-t:hover { text-decoration: underline; }
+.tzqa-source-m { color: var(--tzqa-muted); font-size: 0.8rem; margin-top: 3px; }
+.tzqa-source-x { color: var(--tzqa-muted); font-size: 0.78rem; margin-top: 3px; }
+
+.tzqa-foot { margin-top: 6px; }
+.tzqa-conf {
+  display: inline-block; font-size: 0.8rem; padding: 3px 10px;
+  border-radius: 999px; border: 1px solid var(--tzqa-line); color: var(--tzqa-muted);
+}
+.tzqa-conf--high { color: #1f5130; border-color: #cfe3d4; }
+.tzqa-conf--medium { color: #7a5a12; border-color: #ece0c4; }
+.tzqa-conf--low { color: var(--tzqa-muted); }
+
+.tzqa-limit { color: var(--tzqa-muted); font-size: 0.82rem; margin-top: 10px; }
+.tzqa-limit-h { font-weight: 700; }
+.tzqa-more { margin-top: 14px; border-top: 1px solid var(--tzqa-line); padding-top: 12px; }
