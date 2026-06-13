@@ -1,36 +1,48 @@
-# راهنمای راه‌اندازی سیستم هوش مصنوعی تراز (نسخه خودکار)
+ # پرسش از پرونده‌های تراز — Taraz dossier Q&A (MVP)
 
-این پوشه شامل کدهای **بک‌اند (Backend)** برای چت‌بات هوشمند وب‌سایت تراز است. این سیستم به صورت خودکار تمام مقالات فعلی و آینده سایت شما را می‌خواند و بر اساس آن‌ها به کاربران پاسخ می‌دهد.
+A controlled, citation-based Q&A layer over **published Taraz dossiers only**. Not a
+chatbot, not a public assistant. Answers in Persian, strictly from retrieved Taraz files,
+with citations to public report URLs. Refuses advice and out-of-scope questions.
 
-## مراحل راه‌اندازی
+## Architecture
+- **Frontend:** one reusable widget (`public/taraz-qa-widget.js` + `.css`) that auto-mounts
+  on every `[data-taraz-qa]` placeholder. Modes: `full` (cases index), `compact` (dossier),
+  `inline` (report bottom). RTL, editorial, no API key in the browser.
+- **Backend:** `POST /api/taraz-qa` (Node/TS). Calls the OpenAI **Responses API** with the
+  **file_search** tool against a vector store, applying metadata **filters** by scope and
+  always enforcing `published_status = "published"`. Authoritative `sources` are built from
+  the citation annotations mapped to public metadata — never from model claims.
+- **Index:** `scripts/ingest-taraz-docs.ts` uploads published docs + attributes; the vector
+  store is the knowledge base. No fine-tuning, no live web search in MVP.
 
-### ۱. دریافت کلیدهای API
-شما به سه مورد زیر نیاز دارید:
-1.  **Ghost Content API Key:** از پنل مدیریت Ghost، بخش Settings > Integrations > Custom Integration یک مورد جدید بسازید و کلید Content API را کپی کنید.
-2.  **OpenAI API Key:** از سایت OpenAI یک کلید برای مدل GPT-3.5 یا GPT-4 دریافت کنید.
-3.  **Ghost URL:** آدرس کامل سایت خودتان (مثلاً `https://www.taraz.uk`).
-
-### ۲. تنظیم فایل .env
-فایل `.env.example` را به `.env` تغییر نام دهید و اطلاعات خود را در آن وارد کنید:
-```env
-GHOST_URL=https://www.taraz.uk
-GHOST_API_KEY=کلید_گوست_شما
-OPENAI_API_KEY=کلید_اوپن_ای_آی_شما
+## Setup
+```bash
+npm install
+cp .env.example .env   # fill in keys
+npm run ingest         # uploads content/taraz-published/* and writes data/taraz-files.json
+npm run dev            # or deploy to Vercel
 ```
+Set `OPENAI_MODEL` to a model your account can use (e.g. gpt-4o / gpt-4.1 / gpt-5.1).
 
-### ۳. آپلود سرور (رایگان)
-پیشنهاد می‌شود این پوشه را در یک مخزن (Repository) در GitHub آپلود کنید و سپس آن را به سرویس **Render.com** یا **Vercel** متصل کنید:
-*   در Render: یک Web Service جدید بسازید و به گیت‌هاب وصل کنید.
-*   در بخش Environment Variables، همان مقادیر مرحله ۲ را وارد کنید.
-*   بعد از آپلود، یک آدرس به شما داده می‌شود (مثلاً `https://taraz-ai.onrender.com`).
+## Key rules enforced
+- If fewer than **2** mapped Taraz sources → returns the standard "insufficient" message; never invents an answer.
+- Always appends: «این پاسخ فقط بر اساس محتوای منتشرشده تراز است و جایگزین مشاوره تخصصی نیست.»
+- CORS allowlist (`ALLOWED_ORIGINS`), per-IP rate limit, 500-char input cap, HTML stripped,
+  minimal logging (hashed IP, question, confidence, source titles — no profile).
 
-### ۴. اتصال قالب به سرور
-فایل `default.hbs` در قالب سایت را باز کنید و در خط ۱۶۰، آدرس سرور خود را جایگزین کنید:
-```javascript
-const BACKEND_URL = "آدرس_سرور_شما/chat";
-```
+## Important caveats (read before production)
+- **Serverless filesystem is read-only at runtime.** `data/taraz-files.json` is written at
+  ingest time and committed. The webhook/reindex endpoint returns metadata to persist via a
+  KV store (Vercel KV / Cloudflare KV) — see `admin/ADMIN.md`.
+- **CMS = Ghost Pro.** Embed via the Ghost partial + tag conventions in `embed/ghost-embeds.md`.
+  The widget itself is CMS-agnostic (reads `data-*` attributes).
+- Rate limiting is in-memory (per instance). For real traffic use a KV-backed limiter.
 
-## ویژگی‌ها
-*   **خودکار:** هر مطلب جدیدی که در Ghost منتشر کنید، چت‌بات بلافاصله آن را یاد می‌گیرد.
-*   **مستند:** پاسخ‌ها فقط بر اساس محتوای سایت تراز داده می‌شوند تا از اطلاعات غلط جلوگیری شود.
-*   **امن:** کلیدهای API شما در سرور مخفی می‌مانند و در کدهای سایت لو نمی‌روند.
+## Acceptance tests (manual)
+1. «ریسک‌های اقتصاد دیجیتال در پرونده‌های تراز چیست؟» → answer + citations from the اقتصاد بی‌اتصال dossier.
+2. «تراز درباره بحران اعتماد رسانه فارسی چه گفته؟» → from the media-trust dossier only.
+3. «آیا الان باید دلار بخرم؟» → polite refusal, out of scope, not financial advice.
+4. «آخرین خبر امروز درباره اینترنت ایران چیست؟» → states it answers only from published Taraz reports, no live news in MVP.
+5. «منبع این حرف چیست؟» → shows source titles + public links.
+
+See `tests/qa.test.ts` for unit tests of the pure helpers.
